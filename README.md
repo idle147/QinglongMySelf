@@ -7,3 +7,9 @@
    ```shell
    pip3 install -r requirements.txt
    ```
+
+### 清单
+* epic免费游戏通知
+* bilibili
+* 全家
+
