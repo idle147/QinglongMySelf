@@ -57,7 +57,7 @@ push_config = {
 
     'IGOT_PUSH_KEY': '',  # iGot 聚合推送的 IGOT_PUSH_KEY
 
-    'PUSH_KEY': '',  # server 酱的 PUSH_KEY，兼容旧版与 Turbo 版
+    'PUSH_KEY': os.environ("PUSH_KEY",''),  # server 酱的 PUSH_KEY，兼容旧版与 Turbo 版
 
     'PUSH_PLUS_TOKEN': '',  # push+ 微信推送的用户令牌
     'PUSH_PLUS_USER': '',  # push+ 微信推送的群组编码
@@ -113,11 +113,8 @@ def bark(title: str, content: str) -> None:
     }
     params = ""
     for pair in filter(
-            lambda pairs: pairs[0].startswith("BARK_")
-                          and pairs[0] != "BARK_PUSH"
-                          and pairs[1]
-                          and bark_params.get(pairs[0]),
-            push_config.items(),
+        lambda pairs: pairs[0].startswith("BARK_") and pairs[0] != "BARK_PUSH" and pairs[1] and bark_params.get(pairs[0]),
+        push_config.items(),
     ):
         params += f"{bark_params.get(pair[0])}={pair[1]}&"
     if params:
@@ -150,16 +147,12 @@ def dingding_bot(title: str, content: str) -> None:
     secret_enc = push_config.get("DD_BOT_SECRET").encode("utf-8")
     string_to_sign = "{}\n{}".format(timestamp, push_config.get("DD_BOT_SECRET"))
     string_to_sign_enc = string_to_sign.encode("utf-8")
-    hmac_code = hmac.new(
-        secret_enc, string_to_sign_enc, digestmod=hashlib.sha256
-    ).digest()
+    hmac_code = hmac.new(secret_enc, string_to_sign_enc, digestmod=hashlib.sha256).digest()
     sign = urllib.parse.quote_plus(base64.b64encode(hmac_code))
     url = f'https://oapi.dingtalk.com/robot/send?access_token={push_config.get("DD_BOT_TOKEN")}&timestamp={timestamp}&sign={sign}'
     headers = {"Content-Type": "application/json;charset=utf-8"}
     data = {"msgtype": "markdown", "markdown": {"title": f"{title}", "text": f"{content}"}}
-    response = requests.post(
-        url=url, data=json.dumps(data), headers=headers, timeout=15
-    ).json()
+    response = requests.post(url=url, data=json.dumps(data), headers=headers, timeout=15).json()
 
     if not response["errcode"]:
         print("钉钉机器人 推送成功！")
@@ -307,12 +300,7 @@ def pushplus_bot_my(title: str, content: str) -> None:
         print("PUSHPLUS_MY 服务的 PUSH_PLUS_TOKEN_MY 未设置!!\n取消推送")
         return
     url = "http://www.pushplus.plus/send"
-    data = {
-        "token": push_config.get("PUSH_PLUS_TOKEN_MY"),
-        "title": title,
-        "content": content,
-        "template": "markdown"
-    }
+    data = {"token": push_config.get("PUSH_PLUS_TOKEN_MY"), "title": title, "content": content, "template": "markdown"}
     body = json.dumps(data).encode(encoding="utf-8")
     headers = {"Content-Type": "application/json"}
     response = requests.post(url=url, data=body, headers=headers).json()
@@ -330,12 +318,7 @@ def pushplus_bot_second(title: str, content: str) -> None:
         print("PUSHPLUS_MY 服务的 PUSH_PLUS_TOKEN_SECOND 未设置!!\n取消推送")
         return
     url = "http://www.pushplus.plus/send"
-    data = {
-        "token": push_config.get("PUSH_PLUS_TOKEN_SECOND"),
-        "title": title,
-        "content": content,
-        "template": "markdown"
-    }
+    data = {"token": push_config.get("PUSH_PLUS_TOKEN_SECOND"), "title": title, "content": content, "template": "markdown"}
     body = json.dumps(data).encode(encoding="utf-8")
     headers = {"Content-Type": "application/json"}
     response = requests.post(url=url, data=body, headers=headers).json()
@@ -351,12 +334,7 @@ def pushplus_bot_third(title: str, content: str) -> None:
         print("PUSHPLUS_MY 服务的 PUSH_PLUS_TOKEN_THIRD 未设置!!\n取消推送")
         return
     url = "http://www.pushplus.plus/send"
-    data = {
-        "token": push_config.get("PUSH_PLUS_TOKEN_THIRD"),
-        "title": title,
-        "content": content,
-        "template": "markdown"
-    }
+    data = {"token": push_config.get("PUSH_PLUS_TOKEN_THIRD"), "title": title, "content": content, "template": "markdown"}
     body = json.dumps(data).encode(encoding="utf-8")
     headers = {"Content-Type": "application/json"}
     response = requests.post(url=url, data=body, headers=headers).json()
@@ -437,10 +415,7 @@ class WeCom:
         return data["access_token"]
 
     def send_text(self, message, touser="@all"):
-        send_url = (
-                "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token="
-                + self.get_access_token()
-        )
+        send_url = "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=" + self.get_access_token()
         send_values = {
             "touser": touser,
             "msgtype": "text",
@@ -454,10 +429,7 @@ class WeCom:
         return respone["errmsg"]
 
     def send_mpnews(self, title, message, media_id, touser="@all"):
-        send_url = (
-                "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token="
-                + self.get_access_token()
-        )
+        send_url = "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=" + self.get_access_token()
         send_values = {
             "touser": touser,
             "msgtype": "mpnews",
@@ -493,9 +465,7 @@ def wecom_bot(title: str, content: str) -> None:
     url = f"https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key={push_config.get('QYWX_KEY')}"
     headers = {"Content-Type": "application/json;charset=utf-8"}
     data = {"msgtype": "text", "text": {"content": f"{title}\n\n{content}"}}
-    response = requests.post(
-        url=url, data=json.dumps(data), headers=headers, timeout=15
-    ).json()
+    response = requests.post(url=url, data=json.dumps(data), headers=headers, timeout=15).json()
 
     if response["errcode"] == 0:
         print("企业微信机器人推送成功！")
@@ -515,9 +485,7 @@ def telegram_bot(title: str, content: str) -> None:
     if push_config.get("TG_API_HOST"):
         url = f"https://{push_config.get('TG_API_HOST')}/bot{push_config.get('TG_BOT_TOKEN')}/sendMessage"
     else:
-        url = (
-            f"https://api.telegram.org/bot{push_config.get('TG_BOT_TOKEN')}/sendMessage"
-        )
+        url = f"https://api.telegram.org/bot{push_config.get('TG_BOT_TOKEN')}/sendMessage"
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
     payload = {
         "chat_id": str(push_config.get("TG_USER_ID")),
@@ -526,21 +494,11 @@ def telegram_bot(title: str, content: str) -> None:
     }
     proxies = None
     if push_config.get("TG_PROXY_HOST") and push_config.get("TG_PROXY_PORT"):
-        if push_config.get("TG_PROXY_AUTH") is not None and "@" not in push_config.get(
-                "TG_PROXY_HOST"
-        ):
-            push_config["TG_PROXY_HOST"] = (
-                    push_config.get("TG_PROXY_AUTH")
-                    + "@"
-                    + push_config.get("TG_PROXY_HOST")
-            )
-        proxyStr = "http://{}:{}".format(
-            push_config.get("TG_PROXY_HOST"), push_config.get("TG_PROXY_PORT")
-        )
+        if push_config.get("TG_PROXY_AUTH") is not None and "@" not in push_config.get("TG_PROXY_HOST"):
+            push_config["TG_PROXY_HOST"] = push_config.get("TG_PROXY_AUTH") + "@" + push_config.get("TG_PROXY_HOST")
+        proxyStr = "http://{}:{}".format(push_config.get("TG_PROXY_HOST"), push_config.get("TG_PROXY_PORT"))
         proxies = {"http": proxyStr, "https": proxyStr}
-    response = requests.post(
-        url=url, headers=headers, params=payload, proxies=proxies
-    ).json()
+    response = requests.post(url=url, headers=headers, params=payload, proxies=proxies).json()
 
     if response["ok"]:
         print("tg 推送成功！")
@@ -596,10 +554,7 @@ def send(title: str, content: str) -> None:
     text = one() if hitokoto else ""
     content += "\n\n" + text
 
-    ts = [
-        threading.Thread(target=mode, args=(title, content), name=mode.__name__)
-        for mode in notify_function
-    ]
+    ts = [threading.Thread(target=mode, args=(title, content), name=mode.__name__) for mode in notify_function]
     [t.start() for t in ts]
     [t.join() for t in ts]
 

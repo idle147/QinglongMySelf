@@ -6,7 +6,7 @@ new Env('Epic每周限免');
 """
 import json
 import requests
-import sendNotify
+import utils.sendNotify as sendNotify
 from datetime import datetime
 
 
