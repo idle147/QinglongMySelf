@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-new Env('有道云笔记');
-"""
 from utils import check
 import json
 import os

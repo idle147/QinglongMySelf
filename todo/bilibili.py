@@ -1,8 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-cron: 30 8 * * *
-new Env('哔哩哔哩');
-"""
 import requests
 import sys
 import os

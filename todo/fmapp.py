@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-new Env('全家fmapp');
-"""
 import json
 
 import requests
