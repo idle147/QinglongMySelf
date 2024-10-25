@@ -1,6 +1,10 @@
+"""
+cron: 0 8 * * *
+new Env('每天60s读懂世界');
+"""
 import requests
 import json
-
+from utils import sendNotify
 url = 'https://60s.viki.moe/?encoding=text'
 resp = requests.get(url)
 content = resp.text
@@ -21,4 +25,4 @@ info2 = f"""
 # notify.send("每天60s读懂世界", info2)
 
 # 全文整段发送推送  
-QLAPI.send("每天60s读懂世界", content)
+sendNotify.send("每天60s读懂世界", content)
